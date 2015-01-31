@@ -52,7 +52,7 @@ var CONSTANTS = {
 var mainPanel, westPanel, centerPanel;
 
 //Sub Tab panel
-var mainTabPanel,fieldsPanel, filterPanel, sortPanel, parameterPanel;
+var mainTabPanel,fieldsPanel, filterPanel, parameterPanel;
 
 var container;
 
@@ -60,7 +60,8 @@ var container;
 var contextMenu;
 
 var treeStore;
-var isChanged=false;
+var isChange=false;
+var isTreeClick=false;
 Ext.onReady(function () {
 
     container = document.getElementById("extContainer");
@@ -69,7 +70,6 @@ Ext.onReady(function () {
     height = container.style.height == '' ? 800 : parseInt(container.style.height);
     mainTabPanel = getMainTabPanel();
     fieldsPanel = getFieldsPanel();
-    sortPanel = getSortPanel();
     parameterPanel = getParameterPanel();
 
     contextMenu = getTreeGridMenu();
@@ -180,6 +180,7 @@ function getMainBtns() {
 }
 
 function save(){
+	isChange=false;
     console.log('Save arguments',arguments);
 }
 
@@ -317,23 +318,9 @@ function getMainTabPanel(){
                     }
                 }
             },fieldChanged: function(field,newValue,oldValue) {
-                isChanged=true;
-                //console.log('newValue:'+newValue+",oldValue:"+oldValue);
-                //var mainVo=mainTabPanel.getForm().getValues();
-                //var record=treeStore.findRecord('treeId',mainVo.treeId);
-                //if(record){
-                //    record.raw[field]=newValue;
-                //}
-
-                //if(record){
-                //    for(var key in mainVo){
-                //        record.set(key,mainVo[key]);
-                //    }
-                //    record.commit();
-                //    //record.raw=clone(mainVo);
-                //}
-                //console.log('storeData:', mainVo);
-                //console.log('handleFieldChanged',arguments);
+            	if(!isTreeClick){
+            		isChange=true;
+            	}
             }
         },
         layout: 'anchor',
@@ -458,12 +445,42 @@ function cleanSettingStore() {
 }
 
 function treeClick(treeview, record, element, index, event) {
+	isTreeClick=true;
     if (!record.raw.leaf) {
         return;
     }
     var mainVo = record.raw;
 
-    var firstfieldStore = Ext.data.StoreManager.lookup('first' + CONSTANTS.FIELD + 'Store');
+    console.log('mainVo:', mainVo);
+    console.log(isChange);
+    if(isChange){
+    	Ext.Msg.confirm("System Information","Data is Changed , do you want to save ? ",function(btn){
+    		if("yes"==btn){
+    			//do save
+    			save();
+    			console.log("go save!");
+    		}else{
+    			console.log("discard save!");
+    		}
+    		setData(mainVo);
+            isChange=false;
+    		isTreeClick=false;
+    		console.log("isTreeClick=false!");
+    	});
+    	//Ext.Msg.confirm is transparent, so we need to add return to avoid unexpected code execute
+    	return;
+    }else{
+    	setData(mainVo);
+    }
+    isTreeClick=false;
+}
+
+/**
+ * use mainVo data to fill fieldPanel,parameterPanel,mainTabPanel
+ * @param mainVo
+ */
+function setData(mainVo){
+	var firstfieldStore = Ext.data.StoreManager.lookup('first' + CONSTANTS.FIELD + 'Store');
     cleanSettingStore();
 
     //TODO
@@ -475,28 +492,12 @@ function treeClick(treeview, record, element, index, event) {
     centerPanel.remove(parameterPanel);
     parameterPanel = getParameterPanel(mainVo.erpPmsQueryPrams);
     centerPanel.add(parameterPanel);
-
-    console.log('mainVo:', mainVo);
-
+    
     //fill mainPanleData
-    storeData();
     var form=mainTabPanel.getForm();
-    console.log(isChanged);
+    
     form.reset();
     form.setValues(mainVo);
-}
-
-function storeData(){
-    //var mainVo=mainTabPanel.getForm().getValues();
-    //var record=treeStore.findRecord('treeId',mainVo.treeId);
-    //if(record){
-    //    for(var key in mainVo){
-    //        record.set(key,mainVo[key]);
-    //    }
-    //    record.commit();
-    //    //record.raw=clone(mainVo);
-    //}
-    //console.log('storeData:', mainVo);
 }
 
 function treeDBClick(grid, rowIndex, e) {
@@ -838,7 +839,8 @@ function getDualPanel(storeId) {
             }}
         ,{text: "format",flex: 1,sortable: true,dataIndex: 'format',editor:{allowBlank: false}}
     ];
-
+    
+    addChangeLinster(columns);
 
     var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
@@ -848,21 +850,6 @@ function getDualPanel(storeId) {
     var firstGrid = Ext.create('Ext.grid.Panel', {
         multiSelect: true,
         plugins: [cellEditing],
-        viewConfig: {
-            plugins: {
-                ptype: 'gridviewdragdrop',
-                dragGroup: 'firstGridDDGroup',
-                dropGroup: 'secondGridDDGroup'
-            },
-            listeners: {
-                drop: function (node, data, dropRec, dropPosition) {
-                    var dropOn = dropRec ? ' ' + dropPosition + ' '
-                    + dropRec.get('name') : ' on empty view';
-                    console.log("Drag from right to left", 'Dropped '
-                    + data.records[0].get('name') + dropOn);
-                }
-            }
-        },
         store: firstGridStore,
         columns: columns,
         stripeRows: true,
@@ -884,7 +871,6 @@ function getDualPanel(storeId) {
         }, //auto stretch
         items: [firstGrid]
     });
-    //return [firstGrid,secondGrid];
     return displayPanel;
 }
 
@@ -1029,7 +1015,8 @@ function getParameterPanel(parameterList) {
 
     //目前只有日期變數，若以後需要增加其他類型，則不可透過Grid呈現，要變成Form的型態
     var columns = [paramCol,labelCol,dataTypeCol,defValueCol];
-
+    addChangeLinster(columns);
+    
     // create the data store
     var store = Ext.create('Ext.data.Store', {
         model: 'ParameterModel',
@@ -1044,6 +1031,25 @@ function getParameterPanel(parameterList) {
         columns: columns
     });
     return grid;
+}
+
+/**
+ * Add listener to each grid column editor
+ * @param columns
+ * @returns
+ */
+function addChangeLinster(columns){
+	//Add listener to each grid column editor
+    for(var i=0;i<columns.length;i++){
+    	if(columns[i].editor){
+    		columns[i].editor.listeners={
+        			change : function(field, newVal, oldVal) {
+        				if(!isTreeClick)isChange=true;
+        		    }
+        	};
+    	}
+    }
+	return columns;
 }
 
 /**
