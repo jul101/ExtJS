@@ -7,17 +7,17 @@
 //For Sort And Field Grid Use
 Ext.define('DataObject', {
     extend: 'Ext.data.Model',
-    fields: ['fieldName', 'displayLabel', 'column1', 'column2']
+    fields: ['fieldName','displayLabel','originFieldName', 'column1', 'column2']
 });
 
 Ext.define('ParameterModel', {
     extend: 'Ext.data.Model',
-    fields: ['label', 'defValue']
+    fields: ['label','defValue']
 });
 
 Ext.define('FilterModel', {
     extend: 'Ext.data.Model',
-    fields: ['col0', 'col1', 'col2', 'col3', 'col4', 'col5']
+    fields: ['col0','col1','col2','col3','col4','col5']
 });
 
 /**JSP變數**/
@@ -32,106 +32,74 @@ var systemdate;    //自動帶系統日期
 var width;
 var height;
 
-var westPanelWidth = 150;
-var southPanelHeight = 350;
-var gap = 5;
-var CONSTANTS = {
-    SORT: 'Sort'
-    , FIELD: 'Field'
-    , priorMonthFirstDay: '$PriorMonthFirstDay'
-    , priorMonthLastDay: '$PriorMonthLastDay'
-    , monthFirstDay: '$MonthFirstDay'
-    , monthLastDay: '$MonthLastDay'
-    , systemdate: '$Date'
+var westPanelWidth=250;
+var southPanelHeight=350;
+var gap=5;
+var CONSTANTS={
+    SORT:'Sort'
+    ,FIELD:'Field'
+    ,priorMonthFirstDay:'$PriorMonthFirstDay'
+    ,priorMonthLastDay:'$PriorMonthLastDay'
+    ,monthFirstDay:'$MonthFirstDay'
+    ,monthLastDay:'$MonthLastDay'
+    ,systemdate:'$Date'
 };
 
 
-//主要的Layout Panel
-var mainPanel, westPanel, southPanel, centerPanel;
 
-var fieldsPanel, filterPanel, sortPanel, parameterPanel;
+//主要的Layout Panel
+var mainPanel,westPanel,southPanel,centerPanel;
+
+var fieldsPanel,filterPanel,sortPanel,parameterPanel;
 
 var container;
-Ext.onReady(function () {
+Ext.onReady(function(){
 
-    container = document.getElementById("extContainer");
+    container=document.getElementById("extContainer");
 
-    width = container.style.width == '' ? 800 : parseInt(container.style.width);
-    height = container.style.height == '' ? 800 : parseInt(container.style.height);
-    fieldsPanel = getFieldsPanel();
-    sortPanel = getSortPanel();
-    filterPanel = getFilterPanel();
-    parameterPanel = getParameterPanel();
+    width=container.style.width==''?800:parseInt(container.style.width);
+    height=container.style.height==''?800:parseInt(container.style.height);
+    fieldsPanel=getFieldsPanel();
+    sortPanel=getSortPanel();
+    filterPanel=getFilterPanel();
+    parameterPanel=getParameterPanel();
 
-//	southPanel={
-//		    title: 'Result Grid',
-//		    region: 'south',
-//		    height:southPanelHeight,
-//		    minSize: southPanelHeight,
-//		    maxSize: 250,
-//		    cmargins: '5 0 0 0'
-//		};
-    southPanel = getGridStruture();
+    southPanel=getGridStruture();
 
-//	westPanel = {
-//		title: 'Tree SQL List',
-//		xtype: 'treepanel',
-//		store: getSqlTreeStore(),
-////	         viewConfig: {
-////	             plugins: {
-////	                 ptype: 'treeviewdragdrop'
-////	             }
-////	         },
-//		useArrows: true,
-//		rootVisible: false,
-//		region: 'west', // this is what makes this panel into a region within the containing layout
-//		margins: '2 5 5 0',
-//		width:westPanelWidth,
-//		listeners: {
-//			itemclick:treeClick
-//		},
-//		border: false
-//	};
-
-    westPanel = Ext.create('Ext.tree.Panel', {
-        title: 'Tree SQL List',
+    westPanel =Ext.create('Ext.tree.Panel', {
+        title: 'Client',
         store: getSqlTreeStore(),
         useArrows: true,
         rootVisible: false,
         region: 'west', // this is what makes this panel into a region within the containing layout
         margins: '2 5 5 0',
-        width: westPanelWidth,
+        width:westPanelWidth,
         listeners: {
-            itemclick: treeClick
+            itemclick:treeClick
         },
         border: true
     });
 
 
-    centerPanel = Ext.create('Ext.tab.Panel', {
-        region: 'center',
+    centerPanel =  Ext.create('Ext.tab.Panel', {
+        region:'center',
         margins: '5 0 0 0',
         activeTab: 0,
         tabPosition: 'bottom',
         plain: true,
-        dockedItems: getMainBtns(),
+        dockedItems:getMainBtns(),
         items: [
             fieldsPanel,
             filterPanel,
             sortPanel,
             parameterPanel
-            //,{
-            //    title: 'Parameter',
-            //bodyPadding:10,
-            //    html : 'Another one'
-            //}
         ]
     });
 
-    mainPanel = Ext.create('Ext.panel.Panel', {
+    mainPanel=Ext.create('Ext.panel.Panel', {
         title: 'PMS Query Wizard - Client(Web)',
         width: width,
-        height: height,
+        height:height,
         defaults: {
             collapsible: true,
             split: true,
@@ -141,24 +109,31 @@ Ext.onReady(function () {
             type: 'border',
             padding: 5
         },
-        items: [westPanel, southPanel, centerPanel],
+        items: [westPanel,southPanel,centerPanel],
         renderTo: container
     });
+
 });
+
 
 /**
  * 清除使用者設定的資料
  */
-function cleanSettingStore() {
-    var secondsortStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.SORT + 'Store');
-    var secondfieldStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.FIELD + 'Store');
-    var filterPanelStore = filterPanel.getStore();
-    secondsortStore.loadData([], false);
-    secondfieldStore.loadData([], false);
-    filterPanelStore.loadData([{}], false);
+function cleanSettingStore(){
+    var secondsortStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.SORT+'Store');
+    var secondfieldStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.FIELD+'Store');
+    var filterPanelStore=filterPanel.getStore();
+    secondsortStore.loadData([],false);
+    secondfieldStore.loadData([],false);
+    filterPanelStore.loadData([{}],false);
     Ext.getCmp("excelBtn").disable();
+
+    replaceGrid(getGridStruture());
 }
 
+/**
+ * //TODO
+ * **/
 function treeClick(treeview, record, element, index, event) {
     //for(var key in arguments){
     //	console.log('arguments:'+key,arguments[key]);
@@ -170,14 +145,46 @@ function treeClick(treeview, record, element, index, event) {
 
     var firstsortStore = Ext.data.StoreManager.lookup('first' + CONSTANTS.SORT + 'Store');
     var firstfieldStore = Ext.data.StoreManager.lookup('first' + CONSTANTS.FIELD + 'Store');
+    var secondsortStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.SORT + 'Store');
+    var secondfieldStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.FIELD + 'Store');
     var filterCol1Store = Ext.data.StoreManager.lookup('FilterColStore');
     cleanSettingStore();
 
     //TODO
 
     filterCol1Store.loadData(clone(mainVo.erpPmsQueryFields));
-    firstsortStore.loadData(clone(mainVo.erpPmsQueryFields));
-    firstfieldStore.loadData(mainVo.erpPmsQueryFields);
+
+    var sortCols=clone(mainVo.erpPmsQueryFields);
+    var defSortCols=new Array();
+    if(mainVo.DOrder){
+        var dSelectAry=mainVo.DOrder.split(",");
+        for(var i=0;i<dSelectAry.length;i++){
+            var dCol=dSelectAry[i].trim();
+            var dColObj={
+                originFieldName:dCol
+                ,alignment:'R'
+                ,dataType:'F'
+                ,displayLabel:dCol
+                ,fieldName:dCol
+            };
+
+            if(dCol=='*'){
+                defSortCols.push(dColObj);
+                continue;
+            }
+            var existCol=removeColInArray(sortCols,dColObj);
+            if(existCol){
+                defSortCols.push(existCol);
+            }else{
+                defSortCols.push(dColObj);
+            }
+        }
+    }
+    console.log(defSortCols);
+    secondsortStore.loadData(defSortCols);
+    firstsortStore.loadData(sortCols);
+    var fieldCols=clone(mainVo.erpPmsQueryFields);
+    secondfieldStore.loadData(fieldCols);
     centerPanel.remove(parameterPanel);
     parameterPanel = getParameterPanel(mainVo.erpPmsQueryPrams);
     centerPanel.add(parameterPanel);
@@ -185,32 +192,48 @@ function treeClick(treeview, record, element, index, event) {
     console.log('mainVo:', mainVo);
 }
 
-function treeDBClick(grid, rowIndex, e) {
-    console.log("treeDBClick", grid);
-    console.log("treeDBClick", rowIndex);
-    console.log("treeDBClick", e);
+/**
+ * 移除重複的欄位
+ * @param colsAry
+ * @param obj
+ */
+function removeColInArray(colsAry,obj){
+    var retObj;
+    for(var i=0;i<colsAry.length;i++){
+        var col=colsAry[i];
+        if(col.originFieldName&&col.originFieldName==obj.originFieldName){
+            retObj=colsAry.splice(i,1)[0];
+        }
+    }
+    return retObj;
+}
+
+function treeDBClick(grid,rowIndex,e){
+    console.log("treeDBClick",grid);
+    console.log("treeDBClick",rowIndex);
+    console.log("treeDBClick",e);
 }
 
 /**
  * 回傳SQL Tree結構
  * @returns
  */
-function getSqlTreeStore() {
-    var dataList = [{
-        text: "homework",
-        expanded: true,
-        children: [{
-            text: "book report",
-            leaf: true
+function getSqlTreeStore(){
+    var dataList = [ {
+        text : "homework",
+        expanded : true,
+        children : [ {
+            text : "book report",
+            leaf : true
         }, {
-            text: "alegrbra",
-            leaf: true
-        }]
-    }, {text: "buy lottery tickets", leaf: true}];
-    if (mainList) {
+            text : "alegrbra",
+            leaf : true
+        } ]
+    }, {text : "buy lottery tickets",leaf : true} ];
+    if(mainList){
         setTreeText(mainList);
-        console.log('after setTreeText', mainList);
-        dataList = mainList;
+        console.log('after setTreeText',mainList);
+        dataList=mainList;
     }
 
     var store = Ext.create('Ext.data.TreeStore', {
@@ -218,6 +241,8 @@ function getSqlTreeStore() {
             expanded: true,
             children: dataList
         }
+        ,folderSort: true
+        ,sorters: [{property:'treeId', direction: 'DESC'}]
     });
     return store;
 }
@@ -226,86 +251,89 @@ function getSqlTreeStore() {
  * 將JSP所定義的Json Array補上Tree所需要的資料
  * @param list
  */
-function setTreeText(list) {
-    for (var i = 0; i < list.length; i++) {
-        var main = list[i];
-        if (main.children != null) {
+function setTreeText(list){
+    for(var i=0;i<list.length;i++){
+        var main=list[i];
+        if(main.children!=null){
             setTreeText(main.children);
-        } else {
+        }else{
             main.leaf = true;
         }
-        main.text = main.title;
+        main.text=main.title;
     }
 }
 
-function getGridStruture(requestFields, sqlResultList) {
+function getGridStruture(requestFields,sqlResultList){
 
-    var columns = [];
+    var columns=[];
     var store;
 
-    if (sqlResultList && sqlResultList.length != 0) {
-        columns = [];
-        for (var i = 0; i < requestFields.length; i++) {
-            var col = requestFields[i];
-            columns.push({
-                header: col.displayLabel
-                , dataIndex: col.fieldName
-                , flex: 1
-            });
+    if(sqlResultList&&sqlResultList.length!=0){
+        columns=new Array();
+        //handle return columns change into correct name
+        var secondfieldStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.FIELD+'Store');
+        for(var j=0;j<secondfieldStore.data.length;j++){
+            var obj=secondfieldStore.getAt(j).raw;
+            obj.header=obj.displayLabel;
+            obj.dataIndex=obj.fieldName;
+            obj.width=100;
+            columns.push(obj);
         }
-        store = getGridStore(columns, sqlResultList)
-    } else {
-        store = getGridStore();
+        console.log('columns',columns);
+
+        store=getGridStore(columns,sqlResultList);
+    }else{
+        store=getGridStore();
     }
 
-    var grid = Ext.create('Ext.grid.Panel', {
+    var grid=Ext.create('Ext.grid.Panel', {
         title: 'Result Grid',
+        viewConfig : {enableTextSelection: true},//make cell copiable
         region: 'south',
-        height: southPanelHeight,
+        height:southPanelHeight,
         minSize: southPanelHeight,
         maxSize: 250,
         cmargins: '5 0 0 0',
 //        border: false
 //	    store: Ext.data.StoreManager.lookup('employeeStore'),
-        store: store,
-        dockedItems: getGridBtns(this.store),
-        columns: columns
+        store:store,
+        dockedItems:getGridBtns(this.store),
+        columns:columns
     });
     return grid;
 }
 
-function getGridStore(columns, sqlResultList) {
+function getGridStore(columns,sqlResultList){
     var store;
-    if (columns && sqlResultList.length != 0) {
+    if(columns&&sqlResultList.length!=0){
 
-        var fields = [];
-        for (var i = 0; i < columns.length; i++) {
-            var col = columns[i];
+        var fields=new Array();
+        for(var i=0;i<columns.length;i++){
+            var col=columns[i];
             fields.push(col.dataIndex);
         }
 
-        store = Ext.create('Ext.data.Store', {
-            storeId: 'sqlGridStore',
-            fields: fields,
-            data: {'items': sqlResultList},
+        store=Ext.create('Ext.data.Store', {
+            storeId:'sqlGridStore',
+            pageSize:60000,
+            fields:fields,
+            data:sqlResultList,
             proxy: {
                 type: 'memory',
                 reader: {
-                    type: 'json',
-                    root: 'items'
+                    type: 'json'
                 }
             }
         });
-    } else {
-        store = Ext.create('Ext.data.Store', {
-            storeId: 'sqlGridStore',
-            fields: [],
-            data: {'items': []},
+    }else{
+        store=Ext.create('Ext.data.Store', {
+            storeId:'sqlGridStore',
+            fields:[],
+            data:[],
             proxy: {
                 type: 'memory',
                 reader: {
-                    type: 'json',
-                    root: 'items'
+                    type: 'json'
                 }
             }
         });
@@ -315,16 +343,13 @@ function getGridStore(columns, sqlResultList) {
     return store;
 }
 
-function getFilterGridBtns() {
-    var dockedItems = [];
+function getFilterGridBtns(){
+    var dockedItems=new Array();
     dockedItems.push({
         xtype: 'toolbar',
-        items: [{iconCls: 'icon_add', text: 'Add', handler: addFilter}
-            , {iconCls: 'icon_minus', text: 'Remove', handler: delFilter}
-            //,{iconCls: 'icon-add', text: ' X '}
-            //,{iconCls: 'icon-add', text: '↑'}
-            //,{iconCls: 'icon-add', text: '↓'}
-            , {
+        items: [{iconCls: 'icon_add', text: 'Add',handler:addFilter}
+            ,{iconCls: 'icon_minus', text: 'Remove',handler:delFilter}
+            ,{
                 iconCls: 'icon_view',
                 text: 'Preview',
                 disabled: true,
@@ -337,15 +362,15 @@ function getFilterGridBtns() {
     return dockedItems;
 }
 
-function addFilter() {
-    var filterPanelStore = filterPanel.getStore();
+function addFilter(){
+    var filterPanelStore=filterPanel.getStore();
     filterPanelStore.add({});
 }
 
-function delFilter() {
+function delFilter(){
     var selection = filterPanel.getSelectionModel().getSelection()[0];
     if (selection) {
-        var filterPanelStore = filterPanel.getStore();
+        var filterPanelStore=filterPanel.getStore();
         filterPanelStore.remove(selection);
     }
 }
@@ -355,8 +380,8 @@ function delFilter() {
  * @param store
  * @returns {Array}
  */
-function getGridBtns() {
-    var dockedItems = [];
+function getGridBtns(){
+    var dockedItems=new Array();
     dockedItems.push({
         xtype: 'toolbar',
         items: [
@@ -366,39 +391,74 @@ function getGridBtns() {
                 disabled: true,
                 id: 'excelBtn'
 //            ,scope: this,
-                , handler: genExcel
+                ,handler: genExcel
             }]
     });
     dockedItems.push({
         xtype: 'pagingtoolbar',
+        id:'pagingTB',
         store: Ext.data.StoreManager.lookup('sqlGridStore'),
         dock: 'bottom',
+        moveNext : function() {
+            var c = this, b = c.getPageData().pageCount, a = c.store.currentPage + 1;
+            if (a <= b) {
+                if (c.fireEvent("beforechange", c, a) !== false) {
+                    c.store.nextPage();
+                }
+            }
+        },movePrevious : function() {
+            var b = this, a = b.store.currentPage - 1;
+            if (a > 0) {
+                if (b.fireEvent("beforechange", b, a) !== false) {
+                    b.store.previousPage();
+                }
+            }
+        },moveFirst : function() {
+            if (this.fireEvent("beforechange", this, 1) !== false) {
+                this.store.loadPage(1);
+            }
+        },moveLast : function() {
+            var b = this, a = b.getPageData().pageCount;
+            if (b.fireEvent("beforechange", b, a) !== false) {
+                b.store.loadPage(a);
+            }
+        },move : function(b, d) {
+            var a = this.items, c;
+            c = a.removeAt(b);
+            if (c === false) {
+                return false;
+            }
+            a.insert(d, c);
+            this.doLayout();
+            return c;
+        },
         displayInfo: true
     });
+
 
     return dockedItems;
 }
 
-function apply() {
+function apply(){
     var selection = westPanel.getSelectionModel().getSelection()[0];
-    if (!selection) {
+    if(!selection){
         alert('No selection.');
         return;
     }
-    var mainVo = selection.raw;
+    var mainVo=selection.raw;
 
 
-    var secondsortStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.SORT + 'Store');
-    var secondfieldStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.FIELD + 'Store');
-    var filterPanelStore = filterPanel.getStore();
-    var parameterPanelStore = parameterPanel.getStore();
+    var secondsortStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.SORT+'Store');
+    var secondfieldStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.FIELD+'Store');
+    var filterPanelStore=filterPanel.getStore();
+    var parameterPanelStore=parameterPanel.getStore();
 
-    mainVo.requestFields = getStoreRawDataInArray(secondfieldStore);
-    mainVo.requestSorts = getStoreRawDataInArray(secondsortStore);
-    mainVo.requestFilters = getStoreRawDataInArray(filterPanelStore, true);
-    mainVo.requestParameters = getStoreRawDataInArray(parameterPanelStore);
+    mainVo.requestFields=getStoreRawDataInArray(secondfieldStore);
+    mainVo.requestSorts=getStoreRawDataInArray(secondsortStore);
+    mainVo.requestFilters=getStoreRawDataInArray(filterPanelStore,true);
+    mainVo.requestParameters=getStoreRawDataInArray(parameterPanelStore);
 
-    console.log('reqmainVo', mainVo);
+    console.log('reqmainVo',mainVo);
 
     $.blockUI();
     var url = getAjaxUrl("executeSqlRes");
@@ -406,41 +466,42 @@ function apply() {
 
     var data = "";
 //	data +="&ajaxInfo.requestMainVo.treeId="+treeId;
-    data = transObjToQueryString("ajaxInfo.requestMainVo", mainVo);
-    data += "&" + transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestFields", mainVo.requestFields);
-    data += "&" + transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestSorts", mainVo.requestSorts);
-    data += "&" + transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestFilters", mainVo.requestFilters);
-    data += "&" + transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestParameters", mainVo.requestParameters);
+    data=transObjToQueryString("ajaxInfo.requestMainVo",mainVo);
+    data+="&"+transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestFields",mainVo.requestFields);
+    data+="&"+transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestSorts",mainVo.requestSorts);
+    data+="&"+transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestFilters",mainVo.requestFilters);
+    data+="&"+transArrayObjectToQueryString("ajaxInfo.requestMainVo.requestParameters",mainVo.requestParameters);
 
-    console.log('getAjaxData.data', data);
+    console.log('getAjaxData.data',data);
 
 
     $.ajax({
-        type: "POST",
-        url: url,
-        data: encodeURI(data),
-        cache: false,
-        dataType: "json",
-        success: showValue,
-        error: showError
+        type : "POST",
+        url : url,
+        data : encodeURI(data),
+        cache : false,
+        dataType : "json",
+        success : showValue,
+        error : showError
     });
 
 
-    function showValue(result) {
+    function showValue(result){
         //TODO
         console.log('getAjaxData.success.url', url);
         console.log('getAjaxData.success.result', result.ajaxInfo.requestSqlResult);
-
-        if (result.ajaxInfo.requestSqlResult) {
-            var grid = getGridStruture(mainVo.requestFields, result.ajaxInfo.requestSqlResult);
+        if(result.errMsg!=""){
+            alert("Condintion Error:"+result.errMsg);
+        }else if(result.ajaxInfo.requestSqlResult&&result.ajaxInfo.requestSqlResult.length==0){
+            alert("No Data!");
+        }else if(result.ajaxInfo.requestSqlResult){
+            var grid=getGridStruture(mainVo.requestFields,result.ajaxInfo.requestSqlResult);
             replaceGrid(grid);
+            Ext.getCmp("excelBtn").enable();
         }
-
-        Ext.getCmp("excelBtn").enable();
         $.unblockUI();
     }
-
-    function showError(result) {
+    function showError(result){
         console.log('getAjaxData.showError.url', url);
         console.log('getAjaxData.showError.result', result);
         $.unblockUI();
@@ -453,12 +514,13 @@ function apply() {
  * @param obj
  * @returns {String}
  */
-function transObjToQueryString(prefix, obj) {
-    var data = "";
-    for (var key in obj) {
-        if (typeof obj[key] == 'string' && key != 'text') {
+function transObjToQueryString(prefix,obj){
+    var data="";
+    for(var key in obj){
+        if(typeof obj[key]=='string'&&key!='text'){
             //console.log('key...'+key,typeof mainVo[key]+"..."+mainVo[key]);
-            data += "&" + prefix + "." + key + "=" + obj[key];
+            var value=obj[key].replace(/\+/g,'_ADD_');
+            data+="&"+prefix+"."+key+"="+value;
         }
     }
 
@@ -470,29 +532,29 @@ function transObjToQueryString(prefix, obj) {
  * @param array
  * @returns {String}
  */
-function transArrayObjectToQueryString(prefix, array) {
-    var retStr = "";
-    for (var i = 0; i < array.length; i++) {
-        var obj = array[i];
-        retStr += transObjToQueryString(prefix + "[" + [i] + "]", obj);
+function transArrayObjectToQueryString(prefix,array){
+    var retStr="";
+    for(var i=0;i<array.length;i++){
+        var obj=array[i];
+        retStr+=transObjToQueryString(prefix+"["+[i]+"]",obj);
     }
     return retStr;
 }
 
-function getStoreRawDataInArray(store, isFilter) {
-    var rawDataArray = [];
-    for (var i = 0; i < store.data.length; i++) {
-        var row = store.getAt(i);
+function getStoreRawDataInArray(store,isFilter){
+    var rawDataArray=new Array();
+    for(var i=0;i<store.data.length;i++){
+        var row=store.getAt(i);
         //For parameter date use
-        if (row.data['defValue'] && row.data['defValue'].getFullYear) {
-            var year = row.data.defValue.getFullYear();
-            var month = row.data.defValue.getMonth() + 1;
-            var date = row.data.defValue.getDate();
-            store.getAt(i).raw['defValue'] = year + "/" + month + "/" + date;
+        if(row.data['defValue']&&row.data['defValue'].getFullYear){
+            var year=row.data.defValue.getFullYear();
+            var month=row.data.defValue.getMonth()+1;
+            var date=row.data.defValue.getDate();
+            store.getAt(i).raw['defValue']=year+"/"+month+"/"+date;
         }
-        if (isFilter) {
+        if(isFilter){
             rawDataArray.push(store.getAt(i).data);
-        } else {
+        }else{
             rawDataArray.push(store.getAt(i).raw);
         }
 
@@ -500,27 +562,15 @@ function getStoreRawDataInArray(store, isFilter) {
     return rawDataArray;
 }
 
-function getMainBtns() {
-    var dockedItems = [{
+function getMainBtns(){
+    var dockedItems=[{
         xtype: 'toolbar',
         items: [{
             iconCls: 'icon_yes',
             text: 'Apply'
 //            ,scope: this
-            , handler: apply
+            ,handler: apply
         }
-//		,{
-//			iconCls: 'icon-add',
-//			text: 'Excel'
-////            ,scope: this
-////            ,handler: this.onAddClick
-//		}
-//			, {
-//				iconCls: 'icon_save',
-//				text: 'Save',
-//				disabled: true,
-//				itemId: 'delete'
-//			}
         ]
     }];
     return dockedItems;
@@ -533,17 +583,17 @@ function getMainBtns() {
  * replaceGrid(getGridStruture())
  * @param newPanel
  */
-function replaceGrid(newPanel) {
+function replaceGrid(newPanel){
     mainPanel.remove(southPanel);
-    southPanel = newPanel;
+    southPanel=newPanel;
     mainPanel.add(southPanel);
 }
 
-function getFieldsPanel() {
+function getFieldsPanel(){
     return getDualPanel(CONSTANTS.FIELD);
 }
 
-function getSortPanel() {
+function getSortPanel(){
     return getDualPanel(CONSTANTS.SORT);
 }
 /**
@@ -551,56 +601,56 @@ function getSortPanel() {
  */
 function getDualPanel(storeId) {
 
-    var myData = [];
+    var myData = [ ];
 
     // create the data store
     var firstGridStore = Ext.create('Ext.data.Store', {
-        model: 'DataObject',
-        id: 'first' + storeId + 'Store',
-        data: myData
+        model : 'DataObject',
+        id:'first'+storeId+'Store',
+        data : myData
     });
 
     // Column Model shortcut array
-    var columns = [{
-        text: "Field Name",
-        flex: 1,
-        sortable: false,
-        dataIndex: 'displayLabel'
+    var columns = [ {
+        text : "Field Name",
+        menuDisabled: true,
+        flex : 1,
+        sortable : false,
+        dataIndex : 'displayLabel'
     }
-        //	, {
-        //	text : "column1",
-        //	width : 70,
-        //	sortable : true,
-        //	dataIndex : 'column1'
-        //}, {
-        //	text : "column2",
-        //	width : 70,
-        //	sortable : true,
-        //	dataIndex : 'column2'
-        //}
     ];
 
-    var sortColumns = [{
-        text: "Field Name",
-        flex: 1,
-        sortable: false,
-        renderer: function (value) {
-            return '<img src="../images/sort-asc.gif" class="asc" />' + value;
+    var secondColumns=[ {
+        text : "已選取",
+        menuDisabled: true,
+        flex : 1,
+        sortable : false,
+        dataIndex : 'displayLabel'
+    }
+    ];
+
+    var sortColumns=[{
+        text : "已選取",
+        menuDisabled: true,
+        flex : 1,
+        sortable : false,
+        renderer: function(value){
+            return '<img src="../images/arrow-asc.png" class="asc" />'+value;
         },
-        dataIndex: 'displayLabel'
+        dataIndex : 'displayLabel'
     }];
 
     // declare the source Grid
     var firstGrid = Ext.create('Ext.grid.Panel', {
-        multiSelect: true,
-        viewConfig: {
-            plugins: {
-                ptype: 'gridviewdragdrop',
-                dragGroup: 'firstGridDDGroup',
-                dropGroup: 'secondGridDDGroup'
+        multiSelect : true,
+        viewConfig : {
+            plugins : {
+                ptype : 'gridviewdragdrop',
+                dragGroup : 'firstGridDDGroup',
+                dropGroup : 'secondGridDDGroup'
             },
-            listeners: {
-                drop: function (node, data, dropRec, dropPosition) {
+            listeners : {
+                drop : function(node, data, dropRec, dropPosition) {
                     var dropOn = dropRec ? ' ' + dropPosition + ' '
                     + dropRec.get('name') : ' on empty view';
                     console.log("Drag from right to left", 'Dropped '
@@ -608,28 +658,28 @@ function getDualPanel(storeId) {
                 }
             }
         },
-        store: firstGridStore,
-        columns: columns,
-        stripeRows: true,
+        store : firstGridStore,
+        columns : columns,
+        stripeRows : true,
         //title : 'First Grid',
-        margins: '0 2 0 0'
+        margins : '0 2 0 0'
     });
 
     var secondGridStore = Ext.create('Ext.data.Store', {
-        id: "second" + storeId + "Store",
-        model: 'DataObject'
+        id:"second"+storeId+"Store",
+        model : 'DataObject'
     });
 
     // create the destination Grid
     var secondGrid = Ext.create('Ext.grid.Panel', {
-        viewConfig: {
-            plugins: {
-                ptype: 'gridviewdragdrop',
-                dragGroup: 'secondGridDDGroup',
-                dropGroup: 'firstGridDDGroup'
+        viewConfig : {
+            plugins : {
+                ptype : 'gridviewdragdrop',
+                dragGroup : 'secondGridDDGroup',
+                dropGroup : 'firstGridDDGroup'
             },
-            listeners: {
-                drop: function (node, data, dropRec, dropPosition) {
+            listeners : {
+                drop : function(node, data, dropRec, dropPosition) {
                     var dropOn = dropRec ? ' ' + dropPosition + ' '
                     + dropRec.get('name') : ' on empty view';
                     console.log("Drag from left to right", 'Dropped '
@@ -637,51 +687,48 @@ function getDualPanel(storeId) {
                 }
             }
         },
-        store: secondGridStore,
-        columns: (storeId == "Sort" ? sortColumns : columns),
-        stripeRows: true,
+        store : secondGridStore,
+        columns : (storeId=="Sort"?sortColumns:secondColumns),
+        stripeRows : true,
         //title : 'Second Grid',
         listeners: {
-            itemdblclick: sortItemDblClick
+            itemdblclick:sortItemDblClick
         },
-        margins: '0 0 0 3'
+        margins : '0 0 0 3'
     });
 
     //Simple 'border layout' panel to house both grids
     var displayPanel = Ext.create('Ext.Panel', {
         title: storeId,
-        layout: {
-            type: 'hbox',
-            align: 'stretch',
-            padding: 0
+        layout : {
+            type : 'hbox',
+            align : 'stretch',
+            padding : 0
         },
-        defaults: {
-            flex: 1
+        defaults : {
+            flex : 1
         }, //auto stretch
-        items: [firstGrid, secondGrid],
-        dockedItems: {
-            xtype: 'toolbar',
-            dock: 'bottom',
-            items: ['->', // Fill
+        items : [ firstGrid, secondGrid ],
+        dockedItems : {
+            xtype : 'toolbar',
+            dock : 'bottom',
+            items : [ '->', // Fill
                 {
-                    text: 'Reset both grids',
-                    handler: function () {
+                    text : 'Reset both grids',
+                    handler : function() {
 
                         var selection = westPanel.getSelectionModel().getSelection()[0];
-                        if (!selection) {
+                        if(!selection){
                             alert('No selection.');
                             return;
                         }
-                        var mainVo = selection.raw;
+                        var mainVo=selection.raw;
 
-                        var newColList = [];
-                        for (var i = 0; i < mainVo.erpPmsQueryFields.length; i++) {
+                        var newColList=new Array();
+                        for(var i=0;i<mainVo.erpPmsQueryFields.length;i++){
 //							newColList.push({field1:mainVo.erpPmsQueryFields[i]['displayLabel']});
                             newColList.push(mainVo.erpPmsQueryFields[i]);
                         }
-
-                        //console.log('newColList',newColList);
-
 
                         //refresh source grid
                         firstGridStore.loadData(clone(mainVo.erpPmsQueryFields));
@@ -689,105 +736,102 @@ function getDualPanel(storeId) {
                         //purge destination grid
                         secondGridStore.removeAll();
                     }
-                }]
+                } ]
         }
     });
     //return [firstGrid,secondGrid];
     return displayPanel;
 }
 
-function getFilterPanel() {
+function getFilterPanel(){
 
-    var comboboxStoreAry = [];
-    comboboxStoreAry.push(['(', ')']);
-    comboboxStoreAry.push(['AA', 'BB', 'CC']);
-    comboboxStoreAry.push(['< >', '<', '>', '>=', '<=', '=', 'Like', 'Not Like']);
+    var comboboxStoreAry=new Array();
+    comboboxStoreAry.push(['(','((']);
+    comboboxStoreAry.push(['AA','BB','CC']);
+    comboboxStoreAry.push(['< >','<','>','>=','<=','=','Like','Not Like']);
     comboboxStoreAry.push('FREE');
-    comboboxStoreAry.push(['(', ')']);
-    comboboxStoreAry.push(['AND', 'OR']);
+    comboboxStoreAry.push([')','))']);
+    comboboxStoreAry.push(['AND','OR']);
+    var headerName=['括號','欄位名稱','運算子','關鍵字','括號','邏輯運算子'];
 
     var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
     });
-    var columns = [];
-    for (var i = 0; i < comboboxStoreAry.length; i++) {
-        var col = {
+    var columns=new Array();
+    for(var i=0;i<comboboxStoreAry.length;i++){
+        var col={
             xtype: 'gridcolumn',
-//			renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-//		        metaData.tdCls = 'fake-combo';
-//		        console.log('record',record);
-//		        return value;
-//		    },
-            id: 'filterCol' + i,
-            header: 'Col' + i,
+            id:'filterCol'+i,
+//			header: 'Col'+i,
+            header: headerName[i],
+            menuDisabled: true,
             flex: 1,
             sortable: true,
-            dataIndex: 'col' + i
+            dataIndex: 'col'+i
         };
 
 
-        var editor = {
-            id: 'filterComboEditor' + i,
+        var editor= {
+            id:'filterComboEditor'+i,
             xtype: 'combobox',
             triggerAction: 'all',
             selectOnTab: true,
-            editable: false,
+            editable:false,
             store: comboboxStoreAry[i],
             lazyRender: true,
             listClass: 'x-combo-list-small'
         };
         //TODO
-        if (i == 1) {
+        if(i==1){
             var store = Ext.create('Ext.data.Store', {
-                model: 'DataObject',
-                id: 'FilterColStore',
-                data: []
+                model : 'DataObject',
+                id:'FilterColStore',
+                data : []
             });
-            editor = {
-                id: 'filterComboEditor' + i,
+            editor= {
+                id:'filterComboEditor'+i,
                 xtype: 'combobox',
                 //typeAhead: true,
                 triggerAction: 'all',
                 selectOnTab: true,
                 store: store,
-                editable: false,
+                editable:true,
                 queryMode: 'local',
-                displayField: 'displayLabel',
-                valueField: 'fieldName',
+                displayField:'displayLabel',
+                valueField:'originFieldName',
                 listClass: 'x-combo-list-small'
             };
-            col.renderer = tRender;
+            col.renderer=function tRender(value){
+                var colStore=Ext.data.StoreManager.lookup('FilterColStore');
+                var record=colStore.findRecord('originFieldName',value);
+                return (record?record.getData().displayLabel:"");
+            }
         }
 
-        if ("FREE" != comboboxStoreAry[i]) {
-            col.editor = editor;
-        } else {
-            col.editor = {
+        if("FREE"!=comboboxStoreAry[i]){
+            col.editor=editor;
+        }else{
+            col.editor={
                 allowBlank: true
             };
         }
         columns.push(col);
     }
 
-    var myData = [{}];
+    var myData = [ {} ];
 
     // create the data store
     var store = Ext.create('Ext.data.Store', {
-        model: 'FilterModel',
-        data: myData
+        model : 'FilterModel',
+        data : myData
     });
 
-    var grid = Ext.create('Ext.grid.Panel', {
+    var grid=Ext.create('Ext.grid.Panel', {
         title: 'Filter',
         plugins: [cellEditing],
-        //height:southPanelHeight,
-        //minSize: southPanelHeight,
-        //maxSize: 250,
-        //cmargins: '5 0 0 0',
-//        border: false
-//	    store: Ext.data.StoreManager.lookup('employeeStore'),
-        store: store,
-        dockedItems: getFilterGridBtns(this.store),
+        //enableHdMenu: false,
+        store:store,
+        dockedItems:getFilterGridBtns(this.store),
         columns: columns
     });
     //return [firstGrid,secondGrid];
@@ -796,14 +840,14 @@ function getFilterPanel() {
 
 /**
  * **/
-function comboRenderer(combo) {
-    return function (value) {
+function comboRenderer(combo){
+    return function(value){
         var record = combo.store.findRecord(combo.valueField, value);
         return record ? record.get(combo.displayField) : combo.valueNotFoundText;
     }
 }
 
-function getParameterPanel(parameterList) {
+function getParameterPanel(parameterList){
     var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
     });
@@ -811,37 +855,38 @@ function getParameterPanel(parameterList) {
     var myData;
     var columns;
 
-    if (parameterList) {
-        for (var i = 0; i < parameterList.length; i++) {
+    if(parameterList){
+        for(var i=0;i<parameterList.length;i++){
             //parameterList[i].pramName=parameterList[i].label;
-            if (parameterList[i].defValue == CONSTANTS.monthFirstDay) {
-                parameterList[i].defValue = monthFirstDay;
-            } else if (parameterList[i].defValue == CONSTANTS.monthLastDay) {
-                parameterList[i].defValue = monthLastDay;
-            } else if (parameterList[i].defValue == CONSTANTS.priorMonthFirstDay) {
-                parameterList[i].defValue = priorMonthFirstDay;
-            } else if (parameterList[i].defValue == CONSTANTS.priorMonthLastDay) {
-                parameterList[i].defValue = priorMonthLastDay;
-            } else if (parameterList[i].defValue == CONSTANTS.systemdate) {
-                parameterList[i].defValue = systemdate;
+            if(parameterList[i].defValue==CONSTANTS.monthFirstDay){
+                parameterList[i].defValue=monthFirstDay;
+            }else if(parameterList[i].defValue==CONSTANTS.monthLastDay){
+                parameterList[i].defValue=monthLastDay;
+            }else if(parameterList[i].defValue==CONSTANTS.priorMonthFirstDay){
+                parameterList[i].defValue=priorMonthFirstDay;
+            }else if(parameterList[i].defValue==CONSTANTS.priorMonthLastDay){
+                parameterList[i].defValue=priorMonthLastDay;
+            }else if(parameterList[i].defValue==CONSTANTS.systemdate){
+                parameterList[i].defValue=systemdate;
             }
-            console.log('defValue', parameterList[i].defValue);
+            console.log('defValue',parameterList[i].defValue);
         }
-        myData = parameterList;
-    } else {
+        myData=parameterList;
+    }else{
         myData = [];
     }
 
     //目前只有日期變數，若以後需要增加其他類型，則不可透過Grid呈現，要變成Form的型態
-    columns = [{
-        header: 'Variable',
+    columns=[{header: 'Variable',
+        menuDisabled: true,
         flex: 1,
         sortable: true,
         dataIndex: 'label'
         //,editor:{allowBlank: true}
-    }, {
+    },{
         // column 2 - DATE
         xtype: 'datecolumn',
+        menuDisabled: true,
         header: 'Value',
         dataIndex: 'defValue',
         flex: 1,
@@ -851,40 +896,40 @@ function getParameterPanel(parameterList) {
             xtype: 'datefield',
             allowBlank: false,
             format: 'Y-m-d'
-        }
-    }
+        }}
     ];
+
 
 
     // create the data store
     var store = Ext.create('Ext.data.Store', {
-        model: 'ParameterModel',
-        data: myData
+        model : 'ParameterModel',
+        data : myData
     });
 
-    var grid = Ext.create('Ext.grid.Panel', {
+    var grid=Ext.create('Ext.grid.Panel', {
         title: 'Parameter',
         plugins: [cellEditing],
-        store: store,
+        store:store,
         //dockedItems:getGridBtns(this.store),
         columns: columns
     });
     return grid;
 }
 
-function getParameterPanelX() {
+function getParameterPanelX(){
     var defValueStore = Ext.create('Ext.data.Store', {
         fields: ['label', 'value'],
-        data: [
-            {label: "$PriorMonthFirstDay", value: "$PriorMonthFirstDay"},
-            {label: "$PriorMonthLastDay", value: "$PriorMonthLastDay"},
-            {label: "2015/1/1", value: "$MonthFirstDay"},
-            {label: "2015/1/31", value: "$MonthLastDay"},
-            {label: "$Date", value: "$Date"}
+        data : [
+            {label:"$PriorMonthFirstDay",value:"$PriorMonthFirstDay"},
+            {label:"$PriorMonthLastDay",value:"$PriorMonthLastDay"},
+            {label:"2015/1/1",value:"$MonthFirstDay"},
+            {label:"2015/1/31",value:"$MonthLastDay"},
+            {label:"$Date",value:"$Date"}
         ]
     });
 
-    var comboEditor = {
+    var comboEditor={
         xtype: 'combobox',
         //typeAhead: true,
         //triggerAction: 'all',
@@ -900,14 +945,12 @@ function getParameterPanelX() {
         clicksToEdit: 1
     });
 
-    var columns = [{
-        header: 'Variable',
+    var columns=[{header: 'Variable',
         flex: 1,
         sortable: true,
-        dataIndex: 'pramName', editor: {
+        dataIndex: 'pramName',editor:{
             allowBlank: true
-        }
-    }, {
+        }},{
         header: 'Value',
         flex: 1,
         sortable: true,
@@ -917,54 +960,53 @@ function getParameterPanelX() {
     }
     ];
 
-    var myData = [{pramName: '截止日期', defValue: '$MonthLastDay'}
-        , {pramName: '起始日期', defValue: '$MonthFirstDay'}
+    var myData = [ {pramName:'截止日期',defValue:'$MonthLastDay'}
+        ,{pramName:'起始日期',defValue:'$MonthFirstDay'}
     ];
 
     // create the data store
     var store = Ext.create('Ext.data.Store', {
-        model: 'FilterModel',
-        data: myData
+        model : 'FilterModel',
+        data : myData
     });
 
-    var grid = Ext.create('Ext.grid.Panel', {
+    var grid=Ext.create('Ext.grid.Panel', {
         title: 'Parameter',
         plugins: [cellEditing],
-        store: store,
+        store:store,
         //dockedItems:getGridBtns(this.store),
         columns: columns
     });
     return grid;
 }
 
-function getAjaxData(treeId) {
+function getAjaxData(treeId){
     $.blockUI();
     var data = "";
-    data += "&ajaxInfo.mainVo.treeId=" + treeId;
+    data +="&ajaxInfo.mainVo.treeId="+treeId;
 //	data +="&ajaxInfo.mainVo.processIndex="+$("#fundryProcess").val();
 
-    console.log('getAjaxData.data', data);
+    console.log('getAjaxData.data',data);
 
     var url = getAjaxUrl("execute");
 
     $.ajax({
-        type: "POST",
-        url: url,
-        data: data,
-        cache: false,
-        dataType: "json",
-        success: showValue,
-        error: showError
+        type : "POST",
+        url : url,
+        data : data,
+        cache : false,
+        dataType : "json",
+        success : showValue,
+        error : showError
     });
 
-    function showValue(result) {
+    function showValue(result){
         console.log('getAjaxData.success.url', url);
         console.log('getAjaxData.success.data', data);
         console.log('getAjaxData.success.result', result);
         $.unblockUI();
     }
-
-    function showError(result) {
+    function showError(result){
         console.log('getAjaxData.showError.url', url);
         console.log('getAjaxData.showError.data', data);
         console.log('getAjaxData.showError.result', result);
@@ -986,19 +1028,19 @@ function getAjaxUrl(methodName) {
  * @param index
  * @param e
  */
-function sortItemDblClick(dv, record, item, index, e) {
-    var img = $(item)[0].getElementsByTagName("img")[0];
-    var cls = img.getAttribute("class");
-    if (cls == null || cls == "asc") {
-        img.src = "../images/sort-desc.gif";
-        img.setAttribute("class", "desc");
-        record.data.fieldName = record.data.fieldName.split(" ")[0] + " " + "desc";
-        record.raw.fieldName = record.data.fieldName.split(" ")[0] + " " + "desc";
-    } else {
-        img.src = "../images/sort-asc.gif";
-        img.setAttribute("class", "asc");
-        record.data.fieldName = record.data.fieldName.split(" ")[0] + " " + "asc";
-        record.raw.fieldName = record.data.fieldName.split(" ")[0] + " " + "asc";
+function sortItemDblClick(dv, record, item, index, e){
+    var img=$(item)[0].getElementsByTagName("img")[0];
+    var cls=img.getAttribute("class");
+    if(cls==null||cls=="asc"){
+        img.src="../images/arrow-desc.png";
+        img.setAttribute("class","desc");
+        record.data.fieldName=record.data.fieldName.split(" ")[0]+" "+"desc";
+        record.raw.fieldName=record.data.fieldName.split(" ")[0]+" "+"desc";
+    }else{
+        img.src="../images/arrow-asc.png";
+        img.setAttribute("class","asc");
+        record.data.fieldName=record.data.fieldName.split(" ")[0]+" "+"asc";
+        record.raw.fieldName=record.data.fieldName.split(" ")[0]+" "+"asc";
     }
 }
 
@@ -1042,48 +1084,47 @@ function clone(obj) {
 }
 
 var downWin;
-function genExcel() {
+function genExcel(){
     //http://ftcosdev1.faraday.com.tw/Query_Wizard/main/queryWizard!genExcel.action?
-    var url = "/Query_Wizard/main/queryWizard!genExcel.action";
+    var url="/Query_Wizard/main/queryWizard!genExcel.action";
 
-    var selection = westPanel.getSelectionModel().getSelection()[0];
-    if (!selection) {
-        alert('No selection.');
-        return;
-    }
-    var mainVo = selection.raw;
+    //由於資料放在URL太長會被Server阻擋，因此改放Session
+    /*
+     var selection = westPanel.getSelectionModel().getSelection()[0];
+     if(!selection){
+     alert('No selection.');
+     return;
+     }
+     var mainVo=selection.raw;
 
 
-    var secondsortStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.SORT + 'Store');
-    var secondfieldStore = Ext.data.StoreManager.lookup('second' + CONSTANTS.FIELD + 'Store');
-    var filterPanelStore = filterPanel.getStore();
-    var parameterPanelStore = parameterPanel.getStore();
+     var secondsortStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.SORT+'Store');
+     var secondfieldStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.FIELD+'Store');
+     var filterPanelStore=filterPanel.getStore();
+     var parameterPanelStore=parameterPanel.getStore();
 
-    mainVo.requestFields = getStoreRawDataInArray(secondfieldStore);
-    mainVo.requestSorts = getStoreRawDataInArray(secondsortStore);
-    mainVo.requestFilters = getStoreRawDataInArray(filterPanelStore, true);
-    mainVo.requestParameters = getStoreRawDataInArray(parameterPanelStore);
+     mainVo.requestFields=getStoreRawDataInArray(secondfieldStore);
+     mainVo.requestSorts=getStoreRawDataInArray(secondsortStore);
+     mainVo.requestFilters=getStoreRawDataInArray(filterPanelStore,true);
+     mainVo.requestParameters=getStoreRawDataInArray(parameterPanelStore);
 
-    console.log('reqmainVo', mainVo);
+     console.log('reqmainVo',mainVo);
+     */
 
     $.blockUI();
 
     var data = "";
 //	data +="&ajaxInfo.requestMainVo.treeId="+treeId;
-    data = transObjToQueryString("master.requestMainVo", mainVo);
-    data += "&" + transArrayObjectToQueryString("master.requestMainVo.requestFields", mainVo.requestFields);
-    data += "&" + transArrayObjectToQueryString("master.requestMainVo.requestSorts", mainVo.requestSorts);
-    data += "&" + transArrayObjectToQueryString("master.requestMainVo.requestFilters", mainVo.requestFilters);
-    data += "&" + transArrayObjectToQueryString("master.requestMainVo.requestParameters", mainVo.requestParameters);
+    /*
+     data=transObjToQueryString("master.requestMainVo",mainVo);
+     data+="&"+transArrayObjectToQueryString("master.requestMainVo.requestFields",mainVo.requestFields);
+     data+="&"+transArrayObjectToQueryString("master.requestMainVo.requestSorts",mainVo.requestSorts);
+     data+="&"+transArrayObjectToQueryString("master.requestMainVo.requestFilters",mainVo.requestFilters);
+     data+="&"+transArrayObjectToQueryString("master.requestMainVo.requestParameters",mainVo.requestParameters);
 
-    console.log("url", url + "?" + data);
-    downWin = window.open(url + "?" + data, "downWin", "width=940, height=500, left="
-    + (screen.width / 8 ) + ", top=" + (screen.height / 8 ) + ", scrollbars=yes, resizable=yes, status=1");
+     console.log("url",url+"?"+data);
+     */
+    downWin = window.open(url+"?"+data, "downWin", "width=940, height=500, left="
+    + (screen.width/8 ) + ", top=" + (screen.height/8 ) + ", scrollbars=yes, resizable=yes, status=1");
     $.unblockUI();
-}
-
-function tRender(value) {
-    var colStore = Ext.data.StoreManager.lookup('FilterColStore');
-    var record = colStore.findRecord('fieldName', value);
-    return (record ? record.getData().displayLabel : "");
 }
