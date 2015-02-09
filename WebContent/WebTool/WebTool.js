@@ -75,7 +75,7 @@ Ext.onReady(function(){
         margins: '2 5 5 0',
         width:westPanelWidth,
         listeners: {
-            itemclick:treeClick
+            itemdblclick:treeClick
         },
         border: true
     });
@@ -126,9 +126,11 @@ function cleanSettingStore(){
     secondsortStore.loadData([],false);
     secondfieldStore.loadData([],false);
     filterPanelStore.loadData([{}],false);
-    Ext.getCmp("excelBtn").disable();
+    //Ext.getCmp("excelBtn").disable();
+    southPanel.getDockedItems()[1].getComponent('excelBtn').disable();
 
-    replaceGrid(getGridStruture());
+    replaceGridNew();
+    //replaceGrid(getGridStruture());
 }
 
 /**
@@ -203,6 +205,11 @@ function removeColInArray(colsAry,obj){
         var col=colsAry[i];
         if(col.originFieldName&&col.originFieldName==obj.originFieldName){
             retObj=colsAry.splice(i,1)[0];
+        }else if(col.originFieldName.lastIndexOf('.')!=-1){
+        	var name=col.originFieldName.substring(col.originFieldName.lastIndexOf('.')+1,col.originFieldName.length).toUpperCase();
+        	if(name==obj.originFieldName.toUpperCase()){
+        		retObj=colsAry.splice(i,1)[0];
+        	}
         }
     }
     return retObj;
@@ -389,14 +396,14 @@ function getGridBtns(){
                 iconCls: 'icon_xls',
                 text: 'Excel',
                 disabled: true,
-                id: 'excelBtn'
+                itemId: 'excelBtn'
 //            ,scope: this,
                 ,handler: genExcel
             }]
     });
     dockedItems.push({
         xtype: 'pagingtoolbar',
-        id:'pagingTB',
+        itemId:'pagingTB',
         store: Ext.data.StoreManager.lookup('sqlGridStore'),
         dock: 'bottom',
         moveNext : function() {
@@ -496,8 +503,12 @@ function apply(){
             alert("No Data!");
         }else if(result.ajaxInfo.requestSqlResult){
             var grid=getGridStruture(mainVo.requestFields,result.ajaxInfo.requestSqlResult);
-            replaceGrid(grid);
-            Ext.getCmp("excelBtn").enable();
+            //replaceGrid(grid);
+            replaceGridNew(mainVo.requestFields,result.ajaxInfo.requestSqlResult);
+
+            //can't use id because duplicate id problem
+            //Ext.getCmp("excelBtn").enable();
+            southPanel.getDockedItems()[1].getComponent('excelBtn').enable();
         }
         $.unblockUI();
     }
@@ -587,6 +598,33 @@ function replaceGrid(newPanel){
     mainPanel.remove(southPanel);
     southPanel=newPanel;
     mainPanel.add(southPanel);
+}
+
+function replaceGridNew(requestFields,sqlResultList){
+
+
+    var columns=[];
+    var store;
+
+    if(sqlResultList&&sqlResultList.length!=0){
+        columns=new Array();
+        //handle return columns change into correct name
+        var secondfieldStore = Ext.data.StoreManager.lookup('second'+CONSTANTS.FIELD+'Store');
+        for(var j=0;j<secondfieldStore.data.length;j++){
+            var obj=secondfieldStore.getAt(j).raw;
+            obj.header=obj.displayLabel;
+            obj.dataIndex=obj.fieldName;
+            obj.width=100;
+            columns.push(obj);
+        }
+        console.log('columns',columns);
+
+        store=getGridStore(columns,sqlResultList);
+    }else{
+        store=getGridStore();
+    }
+
+    southPanel.reconfigure(store, columns);
 }
 
 function getFieldsPanel(){
